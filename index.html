@@ -1,0 +1,444 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CreativeBiz Studio — AI Images • Animation • Image → Video</title>
+  <meta name="description" content="Colorful, modern, minimal and professional web app to generate images, animate assets, and convert images to video." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b0d12; /* deep space */
+      --card: #121622;
+      --muted: #8a90a2;
+      --text: #e9ecf1;
+      --brandA: #6a5cff; /* violet */
+      --brandB: #00d4ff; /* aqua */
+      --accent: #ff7a59; /* coral */
+      --ring: #3a3f55;
+      --ok: #21c36a;
+      --warn: #ffc107;
+      --err: #ff4d4f;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--text); background:radial-gradient(1200px 800px at 100% -5%, rgba(106,92,255,.20), transparent 60%),
+      radial-gradient(1200px 800px at -10% 110%, rgba(0,212,255,.20), transparent 60%),
+      linear-gradient(180deg, #0b0d12 0%, #0b0d12 100%);
+    }
+    a{color:inherit}
+    .container{max-width:1100px; margin:0 auto; padding:24px}
+    .nav{display:flex; align-items:center; justify-content:space-between; gap:16px}
+    .brand{display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:.2px}
+    .brand-badge{width:36px; height:36px; border-radius:10px; background: conic-gradient(from 210deg, var(--brandA), var(--brandB)); box-shadow: 0 6px 20px rgba(106,92,255,.35), 0 2px 8px rgba(0,212,255,.25)}
+    .cta{display:flex; gap:10px}
+    .btn{appearance:none; border:1px solid var(--ring); background:#121622; color:var(--text); padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer; transition:transform .04s ease, box-shadow .2s ease, border-color .2s ease}
+    .btn:hover{border-color:#4b5168; box-shadow:0 6px 18px rgba(0,0,0,.4)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:linear-gradient(135deg, var(--brandA), var(--brandB)); border:0}
+    .hero{display:grid; grid-template-columns:1.25fr 1fr; gap:28px; align-items:center; padding:42px 0}
+    .hero h1{font-size:clamp(28px, 4vw, 48px); line-height:1.05; margin:0 0 10px}
+    .subtitle{color:var(--muted); font-size:clamp(14px, 1.5vw, 18px)}
+    .hero-card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid #252a3c; border-radius:18px; padding:18px; display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:6px 10px; border-radius:999px; background: rgba(255,255,255,.06); border:1px solid #2a2f45; font-size:12px; color:#cfd5e3}
+    .grid{display:grid; gap:16px}
+    .grid.cols-3{grid-template-columns:repeat(3, 1fr)}
+    .grid.cols-2{grid-template-columns:repeat(2, 1fr)}
+    @media (max-width: 960px){
+      .hero{grid-template-columns:1fr}
+      .hero-card{grid-template-columns:1fr}
+      .grid.cols-3{grid-template-columns:1fr}
+      .grid.cols-2{grid-template-columns:1fr}
+    }
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border:1px solid #23283b; border-radius:18px; padding:18px; position:relative; overflow:hidden}
+    .card h3{margin:0 0 8px}
+    .field{display:grid; gap:6px}
+    .field label{font-size:12px; color:#c0c7d7}
+    .input, select, textarea{background:#0e111a; border:1px solid #262b3f; color:var(--text); border-radius:12px; padding:10px 12px; outline:none}
+    textarea{min-height:84px; resize:vertical}
+    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+    .spacer{height:16px}
+    .code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; background:#0e111a; border:1px dashed #303750; padding:12px; border-radius:12px; color:#c9d1e6}
+    .tag{display:inline-flex; align-items:center; gap:6px; padding:5px 8px; background:#0e111a; border:1px solid #2d3250; border-radius:999px; font-size:12px; color:#c6cce0}
+    .footer{color:#a8b0c9; font-size:13px; padding:36px 0 64px; text-align:center}
+    .status{font-size:12px; color:#aeb6cd}
+    .progress{height:8px; background:#10131c; border:1px solid #2a3047; border-radius:999px; overflow:hidden}
+    .progress-inner{height:100%; width:0}
+    .divider{height:1px; background:linear-gradient(90deg, transparent, #2a2f45, transparent); margin:20px 0}
+    .video-preview, .img-preview{width:100%; aspect-ratio:16/9; background:#0d111a; border:1px solid #262b3f; border-radius:12px; display:grid; place-items:center; color:#7f88a8; overflow:hidden}
+    .notice{font-size:12px; color:#b7bed3}
+    .tiny{font-size:11px; color:#98a0b6}
+    /* Minimalistic focus ring */
+    .input:focus, select:focus, textarea:focus, .btn:focus{outline:2px solid transparent; box-shadow:0 0 0 3px rgba(106,92,255,.35)}
+  </style>
+</head>
+<body>
+  <header class="container nav">
+    <div class="brand">
+      <span class="brand-badge"></span>
+      <span>CreativeBiz Studio</span>
+    </div>
+    <div class="cta">
+      <button class="btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</button>
+      <button class="btn primary" onclick="document.getElementById('apps').scrollIntoView({behavior:'smooth'})">Launch Apps</button>
+    </div>
+  </header>  <main class="container">
+    <section class="hero">
+      <div>
+        <span class="pill">🎨 AI Images · ✨ Animation · 🎬 Image → Video</span>
+        <h1>Colorful, modern, minimal & professional creative tools for your business</h1>
+        <p class="subtitle">A sleek, single‑page web app that lets you generate images from prompts, animate assets, and convert images into short videos right in the browser. Plug in your favorite AI APIs when you’re ready.</p>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" onclick="document.getElementById('apps').scrollIntoView({behavior:'smooth'})">Get Started</button>
+          <a class="btn" href="#docs">Docs</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="video-preview" id="heroPreview">
+          <span>Live Canvas Preview</span>
+        </div>
+        <div class="grid">
+          <div class="tag">Fast setup</div>
+          <div class="tag">No backend required</div>
+          <div class="tag">Export WebM</div>
+          <div class="tag">API-ready</div>
+        </div>
+      </div>
+    </section><section id="apps" class="grid cols-3">
+  <!-- IMAGE GENERATOR -->
+  <article class="card" id="imageGen">
+    <h3>1) Generate Images</h3>
+    <p class="notice">Connect to your preferred AI image API (OpenAI, Stability, Replicate). The UI is ready — just wire the <code class="code">generateImage()</code> function.</p>
+    <div class="field">
+      <label for="prompt">Prompt</label>
+      <textarea id="prompt" class="input" placeholder="e.g., A neon tiger leaping through a cyberpunk city, colorful, ultra-detailed, 4k"></textarea>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div class="field" style="min-width:180px; flex:1">
+        <label for="style">Style</label>
+        <select id="style" class="input">
+          <option value="photorealistic">Photorealistic</option>
+          <option value="anime">Anime</option>
+          <option value="illustration">Illustration</option>
+          <option value="3d">3D Render</option>
+        </select>
+      </div>
+      <div class="field" style="min-width:140px">
+        <label for="size">Size</label>
+        <select id="size" class="input">
+          <option>512x512</option>
+          <option selected>768x768</option>
+          <option>1024x1024</option>
+          <option>1280x720</option>
+        </select>
+      </div>
+      <div class="field" style="min-width:140px">
+        <label for="seed">Seed (optional)</label>
+        <input id="seed" class="input" type="number" min="0" placeholder="random" />
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" onclick="onGenerate()">Generate</button>
+      <button class="btn" onclick="downloadImage()">Download</button>
+      <span class="status" id="genStatus">Idle</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="img-preview" id="genPreview">No image yet</div>
+  </article>
+
+  <!-- ANIMATION LAB -->
+  <article class="card" id="animLab">
+    <h3>2) Animation Lab</h3>
+    <p class="notice">Animate an uploaded image on a canvas. Export the animation as WebM (browser-native).</p>
+    <div class="row">
+      <input type="file" id="animFile" accept="image/*" class="input" />
+      <select class="input" id="animType">
+        <option value="kenburns">Ken Burns (pan+zoom)</option>
+        <option value="pan-left">Pan Left</option>
+        <option value="pan-right">Pan Right</option>
+        <option value="zoom-in">Zoom In</option>
+        <option value="zoom-out">Zoom Out</option>
+        <option value="rotate">Slow Rotate</option>
+      </select>
+      <input class="input" id="animDuration" type="number" min="1" max="30" value="6" title="Duration (s)"/>
+      <button class="btn" onclick="startAnimPreview()">Preview</button>
+    </div>
+    <div class="spacer"></div>
+    <canvas id="animCanvas" class="video-preview"></canvas>
+    <div class="spacer"></div>
+    <div class="row">
+      <button class="btn primary" onclick="exportAnimation()">Export WebM</button>
+      <div class="progress" style="flex:1; min-width:200px"><div class="progress-inner" id="animProgress"></div></div>
+      <span class="status" id="animStatus">Idle</span>
+    </div>
+  </article>
+
+  <!-- IMAGE → VIDEO -->
+  <article class="card" id="img2vid">
+    <h3>3) Image → Video</h3>
+    <p class="notice">Turn a single image into a short video clip with motion. Exports WebM without any server.</p>
+    <div class="row">
+      <input type="file" id="vidFile" accept="image/*" class="input" />
+      <select class="input" id="vidAspect">
+        <option value="16:9" selected>16:9</option>
+        <option value="9:16">9:16</option>
+        <option value="1:1">1:1</option>
+      </select>
+      <input class="input" id="vidDuration" type="number" min="2" max="30" value="8" title="Duration (s)"/>
+      <select class="input" id="vidMotion">
+        <option value="kb-slow">Ken Burns — Slow</option>
+        <option value="kb-medium" selected>Ken Burns — Medium</option>
+        <option value="kb-fast">Ken Burns — Fast</option>
+      </select>
+    </div>
+    <div class="spacer"></div>
+    <canvas id="vidCanvas" class="video-preview"></canvas>
+    <div class="spacer"></div>
+    <div class="row">
+      <button class="btn primary" onclick="exportImgToVideo()">Export WebM</button>
+      <div class="progress" style="flex:1; min-width:200px"><div class="progress-inner" id="vidProgress"></div></div>
+      <span class="status" id="vidStatus">Idle</span>
+    </div>
+  </article>
+</section>
+
+<section id="docs" style="margin-top:36px" class="card">
+  <h3>Developer Notes</h3>
+  <ol class="tiny">
+    <li><strong>Image Generation API:</strong> Edit <code>generateImage()</code> to call your provider.
+      <pre class="code">// Example (Replicate):
+
+// const r = await fetch("https://api.replicate.com/v1/predictions", { //   method: "POST", //   headers: {"Authorization": Token ${REPLICATE_API_TOKEN}, "Content-Type":"application/json"}, //   body: JSON.stringify({version: "<model-version-id>", input: {prompt, ...}}) // }); // Poll r.urls.get until status === 'succeeded'; then set genImage.src = output[0]
+
+// Example (OpenAI Images): // const r = await fetch("https://api.openai.com/v1/images/edits-or-generations", { ... })</pre> </li> <li><strong>Branding:</strong> Update colors in the <code>:root</code> CSS variables.</li> <li><strong>Hosting:</strong> This is a single HTML file. Drop into any static host (GitHub Pages, Netlify, Vercel, S3).</li> <li><strong>Exports:</strong> Animations and videos export as <code>.webm</code> using <code>MediaRecorder</code>. Most modern browsers support it.</li> </ol> </section>
+
+<section id="contact" class="footer">
+  Built with ♥ for modern creative businesses. <br/>
+  <span class="tiny">Drop this file on any server and you’re live.</span>
+</section>
+
+  </main>  <script>
+    // ===== HERO CANVAS PREVIEW (simple floating blobs) =====
+    (function hero(){
+      const el = document.getElementById('heroPreview');
+      const c = document.createElement('canvas');
+      c.style.width='100%'; c.style.height='100%'; c.width=800; c.height=450; el.innerHTML=''; el.appendChild(c);
+      const ctx = c.getContext('2d');
+      const blobs = Array.from({length:5}).map(()=>({
+        x: Math.random()*c.width,
+        y: Math.random()*c.height,
+        r: 60+Math.random()*120,
+        a: Math.random()*Math.PI*2,
+        s: .2+Math.random()*.6,
+        hue: 200+Math.random()*160
+      }));
+      function frame(t){
+        ctx.clearRect(0,0,c.width,c.height);
+        const g=ctx.createLinearGradient(0,0,c.width,c.height);
+        g.addColorStop(0,'#101425'); g.addColorStop(1,'#0b0f1d');
+        ctx.fillStyle = g; ctx.fillRect(0,0,c.width,c.height);
+        blobs.forEach(b=>{
+          b.a+=0.005*b.s; b.x+=Math.cos(b.a)*.4; b.y+=Math.sin(b.a)*.4;
+          const rg = ctx.createRadialGradient(b.x,b.y,10,b.x,b.y,b.r);
+          rg.addColorStop(0,`hsla(${b.hue}, 90%, 60%, .65)`);
+          rg.addColorStop(1,'rgba(255,255,255,0)');
+          ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+        });
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+
+    // ===== IMAGE GENERATION (stub + placeholder gradient) =====
+    let genImage = new Image();
+    const genPreview = document.getElementById('genPreview');
+    function setGenPreview(node){
+      genPreview.innerHTML=''; genPreview.appendChild(node);
+    }
+    function placeholderFromPrompt(prompt){
+      const canvas = document.createElement('canvas');
+      canvas.width=768; canvas.height=768; const ctx=canvas.getContext('2d');
+      const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+      const h1 = (Math.abs(hash(prompt))%360);
+      const h2 = (h1+120)%360; const h3=(h1+240)%360;
+      g.addColorStop(0,`hsl(${h1}, 85%, 60%)`); g.addColorStop(.5,`hsl(${h2}, 85%, 55%)`); g.addColorStop(1,`hsl(${h3}, 85%, 50%)`);
+      ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(24,24,canvas.width-48,canvas.height-48);
+      ctx.fillStyle='rgba(255,255,255,.95)'; ctx.font='bold 28px Inter, system-ui'; wrapText(ctx, prompt || 'Your image will appear here', 48, 80, canvas.width-96, 34);
+      return canvas;
+    }
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+      const words = text.split(' '); let line='';
+      for(let n=0;n<words.length;n++){
+        const testLine=line+words[n]+' '; const metrics=ctx.measureText(testLine);
+        if(metrics.width>maxWidth && n>0){ ctx.fillText(line, x, y); line=words[n]+' '; y+=lineHeight; }
+        else line=testLine;
+      }
+      ctx.fillText(line, x, y);
+    }
+    function hash(str){ let h=0, i, chr; if(str.length===0) return h; for(i=0; i<str.length; i++){ chr=str.charCodeAt(i); h=((h<<5)-h)+chr; h|=0; } return h; }
+
+    async function generateImage(){
+      const prompt = document.getElementById('prompt').value.trim();
+      const style = document.getElementById('style').value;
+      const size = document.getElementById('size').value;
+      const seed = document.getElementById('seed').value || undefined;
+      const status = document.getElementById('genStatus');
+      status.textContent = 'Generating…';
+
+      // TODO: Replace this with your API integration (OpenAI / Stability / Replicate)
+      // Example wiring (pseudo):
+      // const res = await fetch('/api/generate', {method:'POST', body: JSON.stringify({prompt, style, size, seed})});
+      // const { imageUrl } = await res.json();
+      // genImage = new Image(); genImage.src = imageUrl; genImage.onload = () => setGenPreview(genImage);
+
+      await new Promise(r=>setTimeout(r, 600));
+      const canvas = placeholderFromPrompt(prompt || `${style} ${size}`);
+      genImage = new Image();
+      genImage.src = canvas.toDataURL('image/png');
+      setGenPreview(genImage);
+      status.textContent = 'Done (placeholder). Wire your API to generate real art.';
+    }
+    function onGenerate(){
+      generateImage();
+    }
+    function downloadImage(){
+      if(!genImage || !genImage.src){ alert('Generate an image first.'); return; }
+      const a = document.createElement('a'); a.href=genImage.src; a.download='creativebiz-image.png'; a.click();
+    }
+
+    // ===== ANIMATION LAB =====
+    const animCanvas = document.getElementById('animCanvas');
+    const animCtx = animCanvas.getContext('2d');
+    let animImg = null, animReq = null, animStart = 0, animDur=6, animMode='kenburns';
+
+    function loadImageFromFile(file){
+      return new Promise((resolve,reject)=>{ const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=URL.createObjectURL(file); });
+    }
+    function resizeCanvasTo(el, w, h){ el.width=w; el.height=h; el.style.width='100%'; }
+
+    async function startAnimPreview(){
+      const file = document.getElementById('animFile').files[0];
+      if(!file){ alert('Upload an image first'); return; }
+      animImg = await loadImageFromFile(file);
+      animMode = document.getElementById('animType').value;
+      animDur = Math.max(1, Math.min(30, parseInt(document.getElementById('animDuration').value||6)));
+      resizeCanvasTo(animCanvas, 960, 540);
+      cancelAnimationFrame(animReq); animStart = performance.now();
+      const draw = (now)=>{
+        const t = ((now - animStart)/1000) % animDur; const p = t/animDur; // 0..1
+        renderAnimated(animCtx, animCanvas, animImg, p, animMode);
+        animReq = requestAnimationFrame(draw);
+      };
+      animReq = requestAnimationFrame(draw);
+      document.getElementById('animStatus').textContent = 'Previewing…';
+    }
+
+    function renderAnimated(ctx, canvas, img, p, mode){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // compute transform
+      const aspectCanvas = canvas.width/canvas.height;
+      const aspectImg = img.width/img.height;
+      let w, h; if(aspectImg>aspectCanvas){ h = canvas.height; w = h*aspectImg; } else { w = canvas.width; h = w/aspectImg; }
+      let x = (canvas.width - w)/2; let y = (canvas.height - h)/2;
+
+      let scale=1, dx=0, dy=0, rot=0;
+      switch(mode){
+        case 'kenburns': scale = 1 + 0.15*p; dx = (x)*0.0 + 20*(p-0.5); dy = (y)*0.0 + 12*(p-0.5); break;
+        case 'pan-left': dx = -40*(p-0.5); break;
+        case 'pan-right': dx = 40*(p-0.5); break;
+        case 'zoom-in': scale = 1 + 0.25*p; break;
+        case 'zoom-out': scale = 1.25 - 0.25*p; break;
+        case 'rotate': rot = (p-0.5)*0.08; scale = 1.05; break;
+      }
+      ctx.save();
+      ctx.translate(canvas.width/2, canvas.height/2);
+      ctx.rotate(rot);
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, -w/2 + dx, -h/2 + dy, w, h);
+      ctx.restore();
+    }
+
+    async function exportAnimation(){
+      if(!animImg){ alert('Load an image and click Preview first'); return; }
+      const status = document.getElementById('animStatus');
+      const bar = document.getElementById('animProgress'); bar.style.width='0%';
+      const duration = animDur; const fps = 30; const total = duration*fps;
+      const stream = animCanvas.captureStream(fps);
+      const recorder = new MediaRecorder(stream, {mimeType: 'video/webm;codecs=vp9'});
+      const chunks = [];
+      recorder.ondataavailable = e => { if(e.data.size>0) chunks.push(e.data); };
+      recorder.onstop = ()=>{
+        const blob = new Blob(chunks, {type:'video/webm'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href=url; a.download='animation.webm'; a.click();
+        URL.revokeObjectURL(url);
+        status.textContent='Export complete'; bar.style.width='100%';
+      };
+      recorder.start();
+      // Render frames for the recorder duration
+      let i=0; const start = performance.now();
+      function step(now){
+        const elapsed = (now - start)/1000; const p = Math.min(1, elapsed/duration);
+        renderAnimated(animCtx, animCanvas, animImg, p, animMode);
+        bar.style.width = (p*100).toFixed(1)+'%';
+        i++; if(elapsed < duration){ requestAnimationFrame(step); } else { recorder.stop(); }
+      }
+      requestAnimationFrame(step);
+      status.textContent='Exporting…';
+    }
+
+    // ===== IMAGE → VIDEO (Ken Burns presets) =====
+    const vidCanvas = document.getElementById('vidCanvas');
+    const vidCtx = vidCanvas.getContext('2d');
+    let vidImg = null;
+
+    function setAspect(canvas, aspect){
+      let w=960, h=540; if(aspect==='9:16'){ w=540; h=960; } else if(aspect==='1:1'){ w=720; h=720; }
+      resizeCanvasTo(canvas, w, h);
+    }
+
+    async function exportImgToVideo(){
+      const file = document.getElementById('vidFile').files[0];
+      if(!file){ alert('Upload an image first'); return; }
+      vidImg = await loadImageFromFile(file);
+      const aspect = document.getElementById('vidAspect').value;
+      const duration = Math.max(2, Math.min(30, parseInt(document.getElementById('vidDuration').value||8)));
+      const motion = document.getElementById('vidMotion').value;
+      setAspect(vidCanvas, aspect);
+
+      const bar = document.getElementById('vidProgress'); bar.style.width='0%';
+      const status = document.getElementById('vidStatus'); status.textContent='Exporting…';
+
+      const fps=30; const stream = vidCanvas.captureStream(fps);
+      const recorder = new MediaRecorder(stream, {mimeType:'video/webm;codecs=vp9'});
+      const chunks=[]; recorder.ondataavailable=e=>{ if(e.data.size>0) chunks.push(e.data); };
+      recorder.onstop=()=>{ const blob = new Blob(chunks,{type:'video/webm'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='image-to-video.webm'; a.click(); URL.revokeObjectURL(url); status.textContent='Done'; bar.style.width='100%'; };
+      recorder.start();
+
+      const start = performance.now();
+      function draw(now){
+        const elapsed = (now - start)/1000; const p = Math.min(1, elapsed/duration);
+        renderKB(vidCtx, vidCanvas, vidImg, p, motion);
+        bar.style.width = (p*100).toFixed(1)+'%';
+        if(elapsed < duration) requestAnimationFrame(draw); else recorder.stop();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    function renderKB(ctx, canvas, img, p, motion){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const aspectCanvas = canvas.width/canvas.height; const aspectImg=img.width/img.height;
+      let baseW, baseH; if(aspectImg>aspectCanvas){ baseH = canvas.height; baseW = baseH*aspectImg; } else { baseW = canvas.width; baseH = baseW/aspectImg; }
+      let scaleStart=1.05, scaleEnd=1.20; // default medium
+      if(motion==='kb-slow'){ scaleStart=1.02; scaleEnd=1.10; }
+      if(motion==='kb-fast'){ scaleStart=1.0; scaleEnd=1.35; }
+      const scale = scaleStart + (scaleEnd-scaleStart)*p;
+      const panX = ( (canvas.width - baseW)/2 ) + ( (baseW*0.08) * (p-0.5) );
+      const panY = ( (canvas.height - baseH)/2 ) + ( (baseH*0.05) * Math.sin(p*Math.PI*2) * 0.25 );
+      ctx.save(); ctx.translate(canvas.width/2, canvas.height/2); ctx.scale(scale, scale); ctx.drawImage(img, -baseW/2 + panX/scale, -baseH/2 + panY/scale, baseW, baseH); ctx.restore();
+    }
+  </script></body>
+</html>
